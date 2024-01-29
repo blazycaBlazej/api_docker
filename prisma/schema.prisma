@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Comment {
+  id     Int    @id @default(autoincrement())
+  text   String @db.Text
+  taskId Int
+  Task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId], map: "Comment_taskId_fkey")
+}
+
+model Members {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  projectId Int
+  Project   Project @relation(fields: [projectId], references: [id])
+
+  @@index([projectId], map: "Members_projectId_fkey")
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String    @db.Text
+  startDate   DateTime
+  endDate     DateTime
+  Members     Members[]
+  Task        Task[]
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String    @db.Text
+  expectTerm  DateTime
+  piority     String
+  projectId   Int
+  Comment     Comment[]
+  Project     Project   @relation(fields: [projectId], references: [id])
+
+  @@index([projectId], map: "Task_projectId_fkey")
+}
